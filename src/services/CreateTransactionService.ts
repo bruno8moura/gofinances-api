@@ -18,11 +18,14 @@ class CreateTransactionService {
   }
 
   public execute({ title, value, type }: Request): Transaction {
+    if (!['income', 'outcome'].includes(type))
+      throw new Error('The transactions types allowed are income or outcome.');
+
     const transactionsBalance = new TransactionsBalanceService(
       this.transactionsRepository,
     ).execute();
 
-    if (type === 'outcome' && transactionsBalance.total - value < 0)
+    if (type === 'outcome' && transactionsBalance.total < value)
       throw Error(
         'The balance cannot be negative. There is not balance to pay anything more.',
       );
