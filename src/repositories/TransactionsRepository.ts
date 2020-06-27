@@ -1,11 +1,5 @@
 import Transaction from '../models/Transaction';
 
-interface Balance {
-  income: number;
-  outcome: number;
-  total: number;
-}
-
 interface TransactionData {
   title: string;
   value: number;
@@ -20,11 +14,7 @@ class TransactionsRepository {
   }
 
   public all(): Transaction[] {
-    // TODO
-  }
-
-  public getBalance(): Balance {
-    // TODO
+    return this.transactions;
   }
 
   public create(data: TransactionData): Transaction {
