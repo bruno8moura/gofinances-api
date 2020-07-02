@@ -21,11 +21,13 @@ export default class CreateCategory1593595662821 implements MigrationInterface {
           {
             name: 'created_at',
             type: 'timestamp',
+            default: 'now()',
             isNullable: false,
           },
           {
             name: 'updated_at',
             type: 'timestamp',
+            default: 'now()',
             isNullable: false,
           },
         ],

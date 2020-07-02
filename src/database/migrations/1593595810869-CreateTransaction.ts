@@ -42,11 +42,13 @@ export default class CreateTransaction1593595810869
           {
             name: 'created_at',
             type: 'timestamp',
+            default: 'now()',
             isNullable: false,
           },
           {
             name: 'updated_at',
             type: 'timestamp',
+            default: 'now()',
             isNullable: false,
           },
         ],
@@ -58,8 +60,8 @@ export default class CreateTransaction1593595810869
       new TableForeignKey({
         columnNames: ['category_id'],
         referencedColumnNames: ['id'],
-        referencedTableName: 'transactions',
-        name: 'transactions_category_fk1',
+        referencedTableName: 'categories',
+        name: 'transactions_categories_fk1',
       }),
     );
   }
@@ -67,8 +69,8 @@ export default class CreateTransaction1593595810869
   public async down(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.dropForeignKey(
       'transactions',
-      'transactions_category_fk1',
+      'transactions_categories_fk1',
     );
-    await queryRunner.dropTable('trasactions');
+    await queryRunner.dropTable('transactions');
   }
 }
