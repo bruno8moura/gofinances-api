@@ -1,6 +1,7 @@
-// import AppError from '../errors/AppError';
-
+import { uuid } from 'uuidv4';
 import { getRepository } from 'typeorm';
+import AppError from '../errors/AppError';
+
 import Transaction from '../models/Transaction';
 import Category from '../models/Category';
 
@@ -21,16 +22,24 @@ class CreateTransactionService {
     type,
     categoryTitle,
   }: Request): Promise<Transaction> {
+    const typesSupported = ['income', 'outcome'];
+    if (!typesSupported.includes(type)) {
+      throw new AppError(
+        `The type '${type}' is not supported. The types allowed are ${typesSupported.join(
+          ', ',
+        )}.`,
+      );
+    }
+
     const category = await this.categoryRepository.findOne({
       where: { title: categoryTitle },
     });
-    console.log(category);
 
     if (!category) {
       const newCategory = this.categoryRepository.create({
+        id: uuid(),
         title: categoryTitle,
       });
-      console.log(category, newCategory);
       await this.categoryRepository.save(newCategory);
       return this.createTransaction(title, value, type, newCategory);
     }
@@ -45,6 +54,7 @@ class CreateTransactionService {
     category: Category,
   ): Promise<Transaction> {
     const newTransaction = this.transactionRepository.create({
+      id: uuid(),
       title,
       value,
       type,
@@ -53,6 +63,8 @@ class CreateTransactionService {
 
     await this.transactionRepository.save(newTransaction);
     newTransaction.category = category;
+    console.log(newTransaction);
+
     return newTransaction;
   }
 }

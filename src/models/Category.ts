@@ -1,14 +1,9 @@
-import {
-  Column,
-  CreateDateColumn,
-  UpdateDateColumn,
-  PrimaryGeneratedColumn,
-  Entity,
-} from 'typeorm';
+import { Column, CreateDateColumn, UpdateDateColumn, Entity } from 'typeorm';
 
 @Entity('categories')
 class Category {
-  @PrimaryGeneratedColumn('uuid')
+  // @PrimaryGeneratedColumn('uuid')
+  @Column({ primary: true })
   id: string;
 
   @Column()

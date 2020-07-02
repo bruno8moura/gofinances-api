@@ -1,6 +1,5 @@
 import {
   Entity,
-  PrimaryGeneratedColumn,
   Column,
   ManyToOne,
   JoinColumn,
@@ -11,7 +10,8 @@ import Category from './Category';
 
 @Entity('transactions')
 class Transaction {
-  @PrimaryGeneratedColumn('uuid')
+  // @PrimaryGeneratedColumn('uuid')
+  @Column({ primary: true })
   id: string;
 
   @Column()
