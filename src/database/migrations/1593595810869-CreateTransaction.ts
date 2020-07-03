@@ -62,6 +62,8 @@ export default class CreateTransaction1593595810869
         referencedColumnNames: ['id'],
         referencedTableName: 'categories',
         name: 'transactions_categories_fk1',
+        onDelete: 'SET NULL',
+        onUpdate: 'CASCADE',
       }),
     );
   }
