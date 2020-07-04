@@ -63,7 +63,6 @@ class CreateTransactionService {
 
     await this.transactionRepository.save(newTransaction);
     newTransaction.category = category;
-    console.log(newTransaction);
 
     return newTransaction;
   }

@@ -50,7 +50,6 @@ class TransactionsRepository extends Repository<Transaction> {
       ])
       .innerJoinAndSelect('Transaction.category', 'category')
       .getMany();
-    console.log(allTransactions);
 
     return Promise.resolve(allTransactions);
   }
