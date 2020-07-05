@@ -1,9 +1,9 @@
 import parse from 'csv-parse/lib/sync';
 import { promises } from 'fs';
 import path from 'path';
-import { PrimaryColumn } from 'typeorm';
 import Transaction from '../models/Transaction';
-import CreateTransactionService from './CreateTransactionService';
+import CreateCategoryBatchService from './CreateCategoryBatchService';
+import CreateTransactionBatchService from './CreateTransactionBatchService';
 
 interface ImportedTransaction {
   title: string;
@@ -12,35 +12,45 @@ interface ImportedTransaction {
   category: string;
 }
 
+interface Request {
+  pathToFile: string;
+}
+
 class ImportTransactionsService {
-  async execute(): Promise<Transaction[] | null> {
-    const importedTransactions = await promises.readFile(
-      path.resolve(__dirname, '..', '..', 'tmp', 'transactions.csv'),
+  async execute({ pathToFile }: Request): Promise<Transaction[] | null> {
+    const importedTransactionsBuffer = await promises.readFile(
+      path.resolve(pathToFile),
     );
 
-    const input = importedTransactions.toString('UTF-8');
-    const records: ImportedTransaction[] = parse(input, {
-      columns: true,
-      skip_empty_lines: true,
-      trim: true,
-    });
+    const importedTransactions: ImportedTransaction[] = parse(
+      importedTransactionsBuffer,
+      {
+        columns: true,
+        skip_empty_lines: true,
+        trim: true,
+      },
+    );
 
-    const createTransactionService = new CreateTransactionService();
+    const importedCategories = importedTransactions.map(row => ({
+      title: row.category,
+    }));
 
-    const transactions = records.map(async importedTransaction => {
-      const { title, type, value, category } = importedTransaction;
+    const finalCategories = await new CreateCategoryBatchService().execute(
+      importedCategories,
+    );
 
-      const transaction = await createTransactionService.execute({
+    const toClient = await new CreateTransactionBatchService().execute(
+      importedTransactions.map(({ title, type, value, category }) => ({
         title,
-        value,
         type,
-        categoryTitle: category,
-      });
+        value,
+        category,
+      })),
+      finalCategories,
+    );
 
-      return transaction;
-    });
-
-    return Promise.all(transactions); // NÃO ESTÁ RETORNANDO O ARRAY COM AS TRANSACTIONS!!!
+    promises.unlink(pathToFile);
+    return Promise.resolve(toClient);
   }
 }
 

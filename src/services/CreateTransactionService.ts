@@ -1,9 +1,9 @@
-import { uuid } from 'uuidv4';
-import { getRepository } from 'typeorm';
+import { getRepository, getCustomRepository } from 'typeorm';
 import AppError from '../errors/AppError';
 
 import Transaction from '../models/Transaction';
 import Category from '../models/Category';
+import TransactionsRepository from '../repositories/TransactionsRepository';
 
 interface Request {
   title: string;
@@ -14,7 +14,7 @@ interface Request {
 class CreateTransactionService {
   categoryRepository = getRepository(Category);
 
-  transactionRepository = getRepository(Transaction);
+  transactionsRepository = getCustomRepository(TransactionsRepository);
 
   public async execute({
     title,
@@ -31,20 +31,41 @@ class CreateTransactionService {
       );
     }
 
+    const balance = await this.transactionsRepository.getBalance();
+    if (type === 'outcome' && balance.total - value <= 0) {
+      throw new AppError(
+        `It not possible to create an outcome transaction with an invalid balance. ${type}-${value}`,
+      );
+    }
+
     const category = await this.categoryRepository.findOne({
-      where: { title: categoryTitle },
+      where: { title: categoryTitle.trim() },
     });
 
     if (!category) {
-      const newCategory = this.categoryRepository.create({
-        id: uuid(),
-        title: categoryTitle,
-      });
-      await this.categoryRepository.save(newCategory);
-      return this.createTransaction(title, value, type, newCategory);
+      const newCategory = await this.categoryRepository.save(
+        this.categoryRepository.create({
+          title: categoryTitle,
+        }),
+      );
+
+      const transactionCreated = await this.createTransaction(
+        title,
+        value,
+        type,
+        newCategory,
+      );
+
+      return transactionCreated;
     }
 
-    return this.createTransaction(title, value, type, category);
+    const transctionCreated = await this.createTransaction(
+      title,
+      value,
+      type,
+      category,
+    );
+    return transctionCreated;
   }
 
   private async createTransaction(
@@ -53,16 +74,15 @@ class CreateTransactionService {
     type: 'income' | 'outcome',
     category: Category,
   ): Promise<Transaction> {
-    const newTransaction = this.transactionRepository.create({
-      id: uuid(),
-      title,
-      value,
-      type,
-      category_id: category.id,
-    });
-
-    await this.transactionRepository.save(newTransaction);
-    newTransaction.category = category;
+    const newTransaction = await this.transactionsRepository.save(
+      this.transactionsRepository.create({
+        title,
+        value,
+        type,
+        category_id: category.id,
+        category,
+      }),
+    );
 
     return newTransaction;
   }
