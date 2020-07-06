@@ -1,4 +1,4 @@
-# Repository Like API
+# Financial Transacitons API
 
 An API to control finantials transactions.
 
