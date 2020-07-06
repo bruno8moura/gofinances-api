@@ -34,7 +34,7 @@ class CreateTransactionService {
     const balance = await this.transactionsRepository.getBalance();
     if (type === 'outcome' && balance.total - value <= 0) {
       throw new AppError(
-        `It not possible to create an outcome transaction with an invalid balance. ${type}-${value}`,
+        `It not possible to create an outcome transaction with an invalid balance.`,
       );
     }
 
