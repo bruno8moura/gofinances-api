@@ -5,7 +5,7 @@ An API to control finantials transactions.
 ## Operations
 
 See the documentation on
-[Open API](https://app.swaggerhub.com/apis/bruno8moura/financialtransactions-api/1.0.0)
+[Open API](https://app.swaggerhub.com/apis/bruno8moura/gofinances-api/2.0.1)
 
 ### Create transaction
 ![Create a transanction](project_images/create_transaction.png)
